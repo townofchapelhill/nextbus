@@ -23,8 +23,8 @@ def combine_routes(filename):
     # Create a list of the route tags
     # This can be easily edited in the future to remove or add tags
     list_of_routes = \
-        ['A','CCX','CL','CM','CPX','CW','D','DEX','DM','F','FCX','FG','G','HS','HU','HX','J','JFX','JN','N','NS',
-         'NU','RU','S','SRG','SRJ','SRT','T','TWkend','U','V']
+        ['A', 'B', 'CCX','CL','CM','CPX','CW','D','DEX','DM','F','FCX','FG','G','HS','HU','HX','J','JFX','JN','N','NS',
+         'NU','RU','S','SRG','SRJ','SRT','T','TWkend','U','V', 'Vsat']
 
     # Constrain the for loop to be within the list_of_routes created
     for route in range(len(list_of_routes)):
