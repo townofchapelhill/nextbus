@@ -2,6 +2,7 @@ import urllib.request
 import xml.etree.ElementTree as ET
 import csv
 import datetime
+import traceback
 
 now = datetime.datetime.now()
 today = datetime.date.today()
@@ -95,7 +96,6 @@ def convert_to_csv():
         if header:
             item_head.append('Id')
             item_head.append('Route')
-            item_head.append('Direction')
             item_head.append('Lat')
             item_head.append('Long')
             item_head.append('Seconds Since Report')
@@ -129,8 +129,6 @@ def convert_to_csv():
                     route = vehicle.attrib['routeTag']
                     print(route)
                     bus_info.append(route)
-                    dir = vehicle.attrib['dirTag']
-                    bus_info.append(dir)
                     lat = vehicle.attrib['lat']
                     bus_info.append(lat)
                     lon = vehicle.attrib['lon']
@@ -163,6 +161,7 @@ def main():
         log_file.write("All routes from XML successfully written to a CSV file - nextbusroutes.csv\n\n")
     except:
         log_file.write("ERROR - there was an error in the conversion process of the xml file.\n")
+        log_file.write(traceback.format_exc() + "\n")
 
 # print error to console - missing "source folder" directory
 try:  
@@ -172,5 +171,6 @@ try:
     print('done')
 except:
     log_file.write('ERROR - source folder for xml and csv files not found.\n')
+    log_file.write(traceback.format_exc() + "\n")
     print('error - no src')
     log_file.close()
