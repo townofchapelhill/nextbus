@@ -10,8 +10,7 @@ today = datetime.date.today()
 
 # create an xml file in the open data unpublished folder
 # //CHFS/Shared Documents/OpenData/datasets/staging/
-##bus_file = "//CHFS/Shared Documents/OpenData/datasets/staging/nextbusbuscount.xml"
-bus_file = "/Users/dpcolar/Google Drive/TOCH/nextbus/data/nextbusbuscount.xml"
+bus_file = "//CHFS/Shared Documents/OpenData/datasets/staging/nextbusbuscount.xml"
 
 # throw an error if a "/logs" directory doesn't exist
 log_file = open('nextbuscountlog.txt', 'w')
@@ -80,8 +79,7 @@ def convert_to_csv():
 
     # Create a CSV file in the open data unpublished folder for writing
     #//CHFS/Shared Documents/OpenData/datasets/staging/
-    ##bus_data = open("//CHFS/Shared Documents/OpenData/datasets/staging/nextbuscount.csv", 'w')
-    bus_data = open("/Users/dpcolar/Google Drive/TOCH/nextbus/data/nextbuscount.csv", 'w')
+    bus_data = open("//CHFS/Shared Documents/OpenData/datasets/staging/nextbuscount.csv", 'w')
     log_file.write('CSV file created.\n')
 
     # Create the csv writer object
