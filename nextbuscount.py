@@ -2,6 +2,7 @@ import urllib.request
 import xml.etree.ElementTree as ET
 import csv
 import datetime
+from datetime import timedelta
 import traceback
 
 now = datetime.datetime.now()
@@ -9,7 +10,8 @@ today = datetime.date.today()
 
 # create an xml file in the open data unpublished folder
 # //CHFS/Shared Documents/OpenData/datasets/staging/
-bus_file = "//CHFS/Shared Documents/OpenData/datasets/staging/nextbusbuscount.xml"
+##bus_file = "//CHFS/Shared Documents/OpenData/datasets/staging/nextbusbuscount.xml"
+bus_file = "/Users/dpcolar/Google Drive/TOCH/nextbus/data/nextbusbuscount.xml"
 
 # throw an error if a "/logs" directory doesn't exist
 log_file = open('nextbuscountlog.txt', 'w')
@@ -78,7 +80,8 @@ def convert_to_csv():
 
     # Create a CSV file in the open data unpublished folder for writing
     #//CHFS/Shared Documents/OpenData/datasets/staging/
-    bus_data = open("//CHFS/Shared Documents/OpenData/datasets/staging/nextbuscount.csv", 'w')
+    ##bus_data = open("//CHFS/Shared Documents/OpenData/datasets/staging/nextbuscount.csv", 'w')
+    bus_data = open("/Users/dpcolar/Google Drive/TOCH/nextbus/data/nextbuscount.csv", 'w')
     log_file.write('CSV file created.\n')
 
     # Create the csv writer object
@@ -98,7 +101,7 @@ def convert_to_csv():
             item_head.append('Route')
             item_head.append('Lat')
             item_head.append('Long')
-            item_head.append('Seconds Since Report')
+            item_head.append('reportTimestamp')
             item_head.append('Predictable')
             item_head.append('Heading')
             item_head.append('Speed Km/hr')
@@ -134,7 +137,9 @@ def convert_to_csv():
                     lon = vehicle.attrib['lon']
                     bus_info.append(lon)
                     secs = vehicle.attrib['secsSinceReport']
-                    bus_info.append(secs)
+                    report_timestamp = datetime.datetime.now() - timedelta(seconds = int(vehicle.attrib['secsSinceReport']))
+                    bus_info.append(report_timestamp.strftime('%Y-%m-%d %H:%M:%S'))
+                    #bus_info.append(secs)
                     predictable = vehicle.attrib['predictable']
                     bus_info.append(predictable)
                     heading = vehicle.attrib['heading']
