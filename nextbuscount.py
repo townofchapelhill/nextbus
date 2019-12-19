@@ -10,10 +10,10 @@ today = datetime.date.today()
 
 # create an xml file in the open data unpublished folder
 # //CHFS/Shared Documents/OpenData/datasets/staging/
-bus_file = "//CHFS/Shared Documents/OpenData/datasets/staging/nextbusbuscount.xml"
-
+## bus_file = "//CHFS/Shared Documents/OpenData/datasets/staging/nextbuscount.xml"
+bus_file = "/Users/dpcolar/Google Drive/TOCH/nextbus/data/nextbuscount.xml"
 # throw an error if a "/logs" directory doesn't exist
-log_file = open('nextbuscountlog.txt', 'w')
+log_file = open('/Users/dpcolar/Google Drive/TOCH/nextbus/data/nextbuscountlog.txt', 'w')
     
 # Define function to combine the XML files at each url
 def combine_routes(filename):
@@ -79,7 +79,8 @@ def convert_to_csv():
 
     # Create a CSV file in the open data unpublished folder for writing
     #//CHFS/Shared Documents/OpenData/datasets/staging/
-    bus_data = open("//CHFS/Shared Documents/OpenData/datasets/staging/nextbuscount.csv", 'w')
+    ## bus_data = open("//CHFS/Shared Documents/OpenData/datasets/staging/nextbuscount.csv", 'w')
+    bus_data = open("/Users/dpcolar/Google Drive/TOCH/nextbus/data/nextbuscount.csv", 'w')
     log_file.write('CSV file created.\n')
 
     # Create the csv writer object
@@ -102,7 +103,7 @@ def convert_to_csv():
             item_head.append('reportTimestamp')
             item_head.append('Predictable')
             item_head.append('Heading')
-            item_head.append('Speed Km/hr')
+            item_head.append('Speed MPH')
            
             # Write back to csvwriter
             csvwriter.writerow(item_head)
@@ -142,7 +143,7 @@ def convert_to_csv():
                     bus_info.append(predictable)
                     heading = vehicle.attrib['heading']
                     bus_info.append(heading)
-                    speed = vehicle.attrib['speedKmHr']
+                    speed = float(vehicle.attrib['speedKmHr']) * 0.622
                     bus_info.append(speed)
                     
                     # append the bus_info list onto the next row in csv file
