@@ -7,11 +7,12 @@ now = datetime.datetime.now()
 today = datetime.date.today()
 
 # create an xml file in the open data unpublished folder
-bus_file = "//CHFS/Shared Documents/OpenData/datasets/staging/nextbusroutes.xml"
+bus_file = "/Users/dpcolar/Google Drive/TOCH/nextbus/data/nextbusroutes.xml"
+##bus_file = "//CHFS/Shared Documents/OpenData/datasets/staging/nextbusroutes.xml"
 
 # throw an error if a "/logs" directory doesn't exist
 try:
-    log_file = open('logs/' + str(today) + '-nextbuslog.txt', 'w')
+    log_file = open('logs/nextbuslog.txt', 'w')
 except:
     error_file = open('error.txt', 'w')
     error_file.write('ERROR - "logs" directory not found\n')
@@ -20,11 +21,12 @@ except:
 # Define function to combine the XML files at each url
 def combine_routes(filename):
 
-    # Create a list of the route tags
-    # This can be easily edited in the future to remove or add tags
-    list_of_routes = \
-        ['A', 'B', 'CCX','CL','CM','CPX','CW','D','DEX','DM','F','FCX','FG','G','HS','HU','HX','J','JFX','JN','N','NS',
-         'NU','RU','S','SRG','SRJ','SRT','T','TWkend','U','V', 'Vsat']
+    # Retrieve a list of the route tags from nextbus
+    list_of_routes = []
+    route_url = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeList&a=chapel-hill"
+    for route in ET.fromstring(urllib.request.urlopen(route_url).read().decode('utf-8')):
+        list_of_routes.append(route.attrib['tag'])
+        #print(route.attrib['tag'])
 
     # Constrain the for loop to be within the list_of_routes created
     for route in range(len(list_of_routes)):
@@ -82,7 +84,9 @@ def convert_to_csv():
     root = tree.getroot()
 
     # Create a CSV file in the open data unpublished folder for writing
-    bus_data = open("//CHFS/Shared Documents/OpenData/datasets/staging/nextbusroutes.csv", 'w')
+    bus_data_file = "//CHFS/Shared Documents/OpenData/datasets/staging/nextbusroutes.csv"
+    bus_data_file = "/Users/dpcolar/Google Drive/TOCH/nextbus/data/nextbusroutes.csv"
+    bus_data = open(bus_data_file, 'w')
     log_file.write('CSV file created.\n')
 
     # Create the csv writer object

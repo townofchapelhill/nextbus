@@ -14,8 +14,8 @@ today = datetime.date.today()
 ## bus_file = "//CHFS/Shared Documents/OpenData/datasets/staging/nextbuscount.xml"
 bus_file = "/Users/dpcolar/Google Drive/TOCH/nextbus/data/nextbuscount.xml"
 # throw an error if a "/logs" directory doesn't exist
-log_file = open('/Users/dpcolar/Google Drive/TOCH/nextbus/data/nextbuscountlog.txt', 'w')
-    
+log_file = open('logs/nextbuscountlog.txt', 'w')
+  
 # Define function to combine the XML files at each url
 def combine_routes(filename):
 
@@ -129,31 +129,35 @@ def convert_to_csv():
             for item in root.findall('vehicle'):
                 if vehicle.attrib['id'] in id_list:
                     break
-                else: 
-                    bus_info = []
-                    vehicleid = vehicle.attrib['id']
-                    bus_info.append(vehicleid)
-                    id_list.append(vehicleid)
-                    route = vehicle.attrib['routeTag']
-                    # print(route)
-                    bus_info.append(route)
-                    lat = vehicle.attrib['lat']
-                    bus_info.append(lat)
-                    lon = vehicle.attrib['lon']
-                    bus_info.append(lon)
-                    #secs = vehicle.attrib['secsSinceReport']
-                    report_timestamp = datetime.datetime.now() - timedelta(seconds = int(vehicle.attrib['secsSinceReport']))
-                    bus_info.append(report_timestamp.strftime('%Y-%m-%d %H:%M:%S'))
-                    #bus_info.append(secs)
-                    predictable = vehicle.attrib['predictable']
-                    bus_info.append(predictable)
-                    heading = vehicle.attrib['heading']
-                    bus_info.append(heading)
-                    speed = float(vehicle.attrib['speedKmHr']) * 0.622 # convert to MPH
-                    bus_info.append(speed)
+                else:
+                    try:
+                        bus_info = []
+                        vehicleid = vehicle.attrib['id']
+                        bus_info.append(vehicleid)
+                        id_list.append(vehicleid)
+                        route = vehicle.attrib['routeTag']
+                        # print(route)
+                        bus_info.append(route)
+                        lat = vehicle.attrib['lat']
+                        bus_info.append(lat)
+                        lon = vehicle.attrib['lon']
+                        bus_info.append(lon)
+                        #secs = vehicle.attrib['secsSinceReport']
+                        report_timestamp = datetime.datetime.now() - timedelta(seconds = int(vehicle.attrib['secsSinceReport']))
+                        bus_info.append(report_timestamp.strftime('%Y-%m-%d %H:%M:%S'))
+                        #bus_info.append(secs)
+                        predictable = vehicle.attrib['predictable']
+                        bus_info.append(predictable)
+                        heading = vehicle.attrib['heading']
+                        bus_info.append(heading)
+                        speed = float(vehicle.attrib['speedKmHr']) * 0.622 # convert to MPH
+                        bus_info.append(speed)
                     
-                    # append the bus_info list onto the next row in csv file
-                    csvwriter.writerow(bus_info)
+                        # append the bus_info list onto the next row in csv file
+                        csvwriter.writerow(bus_info)
+                    except KeyError:
+                        log_file.write("KeyError on Vehicle\n")
+                        print(f'KeyError {vehicle.attrib}')
                 
     # Close file once written to
     bus_data.close()
