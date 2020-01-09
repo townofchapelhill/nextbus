@@ -2,26 +2,29 @@ import urllib.request
 import xml.etree.ElementTree as ET
 import csv
 import datetime
+from datetime import timedelta
 import traceback
+import os
 
 now = datetime.datetime.now()
 today = datetime.date.today()
 
 # create an xml file in the open data unpublished folder
 # //CHFS/Shared Documents/OpenData/datasets/staging/
-bus_file = "//CHFS/Shared Documents/OpenData/datasets/staging/nextbusbuscount.xml"
-
+bus_file = "//CHFS/Shared Documents/OpenData/datasets/staging/nextbuscount.xml"
 # throw an error if a "/logs" directory doesn't exist
-log_file = open('nextbuscountlog.txt', 'w')
-    
+log_file = open('logs/nextbuscountlog.txt', 'w')
+  
 # Define function to combine the XML files at each url
 def combine_routes(filename):
 
-    # Create a list of the route tags
-    # This can be easily edited in the future to remove or add tags
-    list_of_routes = ['A', 'B', 'CCX','CL','CM','CPX','CW','D','DEX','DM','F','FCX','FG','G','HS','HU','HX','J','JFX','JN','N','NS',
-         'NU','RU','S','SRG','SRJ','SRT','T','TWkend','U','V', 'Vsat']
-    # Constrain the for loop to be within the list_of_routes created
+    # Retrieve a list of the route tags from nextbus
+    list_of_routes = []
+    route_url = "http://webservices.nextbus.com/service/publicXMLFeed?command=routeList&a=chapel-hill"
+    for route in ET.fromstring(urllib.request.urlopen(route_url).read().decode('utf-8')):
+        list_of_routes.append(route.attrib['tag'])
+        #print(route.attrib['tag'])
+
     for route in range(len(list_of_routes)):
         # Assign a variable to hold the route letter
         # This is updated with a new route each loop
@@ -77,9 +80,9 @@ def convert_to_csv():
     root = tree.getroot()
 
     # Create a CSV file in the open data unpublished folder for writing
-    #//CHFS/Shared Documents/OpenData/datasets/staging/
-    bus_data = open("//CHFS/Shared Documents/OpenData/datasets/staging/nextbuscount.csv", 'w')
-    log_file.write('CSV file created.\n')
+    bus_data_file = "//CHFS/Shared Documents/OpenData/datasets/staging/nextbuscount.csv"
+    bus_data = open(bus_data_file, 'a')
+    # log_file.write('CSV file created.\n')
 
     # Create the csv writer object
     csvwriter = csv.writer(bus_data)
@@ -88,7 +91,10 @@ def convert_to_csv():
     item_head = []
 
     # use boolean to determine header in loop
-    header = True
+    if os.stat(bus_data_file).st_size == 0:
+        header = True
+    else:
+        header = False
 
     # Create loop to convert file to csv
     for vehicle in root.findall('vehicle'):
@@ -98,10 +104,10 @@ def convert_to_csv():
             item_head.append('Route')
             item_head.append('Lat')
             item_head.append('Long')
-            item_head.append('Seconds Since Report')
+            item_head.append('reportTimestamp')
             item_head.append('Predictable')
             item_head.append('Heading')
-            item_head.append('Speed Km/hr')
+            item_head.append('Speed MPH')
            
             # Write back to csvwriter
             csvwriter.writerow(item_head)
@@ -115,35 +121,41 @@ def convert_to_csv():
         id_list = []
         # loop through each <tr> in the routes
         if vehicle.attrib['id'] not in id_list:
-            print(vehicle.attrib['id'])
+            #print(vehicle.attrib['id'])
             
             # loop through each stop and add the header info to list
             for item in root.findall('vehicle'):
                 if vehicle.attrib['id'] in id_list:
                     break
-                else: 
-                    bus_info = []
-                    vehicleid = vehicle.attrib['id']
-                    bus_info.append(vehicleid)
-                    id_list.append(vehicleid)
-                    route = vehicle.attrib['routeTag']
-                    print(route)
-                    bus_info.append(route)
-                    lat = vehicle.attrib['lat']
-                    bus_info.append(lat)
-                    lon = vehicle.attrib['lon']
-                    bus_info.append(lon)
-                    secs = vehicle.attrib['secsSinceReport']
-                    bus_info.append(secs)
-                    predictable = vehicle.attrib['predictable']
-                    bus_info.append(predictable)
-                    heading = vehicle.attrib['heading']
-                    bus_info.append(heading)
-                    speed = vehicle.attrib['speedKmHr']
-                    bus_info.append(speed)
+                else:
+                    try:
+                        bus_info = []
+                        vehicleid = vehicle.attrib['id']
+                        bus_info.append(vehicleid)
+                        id_list.append(vehicleid)
+                        route = vehicle.attrib['routeTag']
+                        # print(route)
+                        bus_info.append(route)
+                        lat = vehicle.attrib['lat']
+                        bus_info.append(lat)
+                        lon = vehicle.attrib['lon']
+                        bus_info.append(lon)
+                        #secs = vehicle.attrib['secsSinceReport']
+                        report_timestamp = datetime.datetime.now() - timedelta(seconds = int(vehicle.attrib['secsSinceReport']))
+                        bus_info.append(report_timestamp.strftime('%Y-%m-%d %H:%M:%S'))
+                        #bus_info.append(secs)
+                        predictable = vehicle.attrib['predictable']
+                        bus_info.append(predictable)
+                        heading = vehicle.attrib['heading']
+                        bus_info.append(heading)
+                        speed = float(vehicle.attrib['speedKmHr']) * 0.622 # convert to MPH
+                        bus_info.append(speed)
                     
-                    # append the bus_info list onto the next row in csv file
-                    csvwriter.writerow(bus_info)
+                        # append the bus_info list onto the next row in csv file
+                        csvwriter.writerow(bus_info)
+                    except KeyError:
+                        log_file.write("KeyError on Vehicle\n")
+                        print(f'KeyError {vehicle.attrib}')
                 
     # Close file once written to
     bus_data.close()
